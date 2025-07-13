@@ -3,445 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>视频加密解密工具</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <title>赞赏获取代码</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #3498db;
-            --primary-dark: #2980b9;
-            --secondary: #2ecc71;
-            --danger: #e74c3c;
-            --light: #f5f7fa;
-            --medium: #ecf0f1;
-            --dark: #95a5a6;
-            --text: #333;
+            --primary: #00f0ff;
+            --secondary: #0088ff;
+            --dark: #0a192f;
+            --light: #e6f1ff;
+            --success: #00ff9d;
         }
         
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--light);
-            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
             line-height: 1.6;
         }
         
         .container {
+            width: 100%;
             max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: auto;
+            padding: 30px;
+            background: rgba(10, 25, 47, 0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            position: relative;
         }
         
         h1 {
-            text-align: center;
-            color: var(--text);
-            margin-bottom: 30px;
-        }
-        
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--medium);
-        }
-        
-        .tab {
-            padding: 12px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .tab.active {
-            border-bottom-color: var(--primary);
+            font-family: 'Orbitron', sans-serif;
             color: var(--primary);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .file-upload-area {
-            border: 2px dashed var(--medium);
-            border-radius: 8px;
-            padding: 30px;
             text-align: center;
-            cursor: pointer;
             margin-bottom: 20px;
-            transition: all 0.3s;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
         }
         
-        .file-upload-area:hover {
-            border-color: var(--primary);
-            background-color: rgba(52, 152, 219, 0.05);
-        }
-        
-        .upload-label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .upload-label svg {
-            width: 40px;
-            height: 40px;
-            color: var(--primary);
-        }
-        
-        input[type="file"] {
-            display: none;
-        }
-        
-        button {
-            width: 100%;
-            padding: 14px;
-            margin: 15px 0;
-            background: var(--primary);
-            color: white;
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            padding: 14px 28px;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
+            border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
         }
         
-        button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 240, 255, 0.4);
         }
         
-        button:disabled {
-            background: var(--dark);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .secondary-btn {
-            background: var(--secondary);
-        }
-        
-        .secondary-btn:hover {
-            opacity: 0.9;
-        }
-        
-        .video-preview {
-            width: 100%;
-            max-height: 400px;
-            margin: 15px 0;
-            border-radius: 8px;
-            background: #000;
+        .modal {
             display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(5px);
         }
         
-        .status-info {
-            margin: 10px 0;
-            padding: 12px;
+        /* 全新设计的二维码容器 */
+        .qr-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+            background: rgba(10, 25, 47, 0.9);
+            border-radius: 12px;
+            padding: 30px 20px;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+        }
+        
+        /* 确保二维码完整显示的容器 */
+        .qr-wrapper {
+            width: 100%;
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
             border-radius: 8px;
-            background-color: var(--medium);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
-        .status-info.success {
-            background-color: rgba(46, 204, 113, 0.2);
+        /* 二维码图片样式 - 确保完整显示 */
+        .qr-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
         }
         
-        .status-info.error {
-            background-color: rgba(231, 76, 60, 0.2);
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: var(--primary);
+            font-size: 28px;
+            cursor: pointer;
+        }
+        
+        #codeContainer {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 240, 255, 0.05);
+            border-radius: 8px;
+            display: none;
+            border: 1px dashed var(--primary);
+        }
+        
+        #codeText {
+            font-family: monospace;
+            white-space: pre-wrap;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            color: var(--success);
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        #copyBtn {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--primary);
+            padding: 10px 20px;
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 15px;
         }
         
         @media (max-width: 600px) {
-            .container {
-                padding: 15px;
+            .qr-modal-content {
+                width: 95%;
+                padding: 20px 15px;
             }
             
-            .card {
-                padding: 20px;
-            }
-            
-            .file-upload-area {
-                padding: 20px;
-            }
-            
-            button {
-                padding: 12px;
-                font-size: 15px;
-            }
-            
-            .tab {
-                padding: 10px 15px;
-                font-size: 14px;
+            .qr-wrapper {
+                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔐 视频加密解密工具</h1>
+        <h1>赞赏获取专属代码</h1>
+        <p>感谢您的支持！随机赞赏后即可解锁专属代码</p>
         
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('encrypt')">加密视频</div>
-            <div class="tab" onclick="switchTab('decrypt')">解密视频</div>
-        </div>
+        <button id="donateBtn" class="btn">立即赞赏</button>
         
-        <!-- 加密部分 -->
-        <div id="encrypt-tab" class="tab-content active">
-            <div class="card">
-                <div class="file-upload-area" id="encrypt-dropzone">
-                    <input type="file" id="videoUpload" accept="video/*">
-                    <label for="videoUpload" class="upload-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        <span id="encrypt-filename">点击或拖拽视频文件到此处</span>
-                    </label>
+        <div id="donateModal" class="modal">
+            <div class="qr-modal-content">
+                <span class="close">&times;</span>
+                <h2 style="color: var(--primary); margin-bottom: 10px;">请扫码赞赏</h2>
+                
+                <!-- 专门设计的二维码展示区域 -->
+                <div class="qr-wrapper">
+                    <img class="qr-image" src="https://pic1.imgdb.cn/item/682972f358cb8da5c8fa3b5f.jpg" alt="赞赏二维码">
                 </div>
                 
-                <button id="encryptBtn">加密并下载</button>
-                
-                <div id="encrypt-status" class="status-info">
-                    请上传需要加密的视频文件
-                </div>
+                <p style="margin-top: 15px;">关闭窗口后即可获取代码</p>
             </div>
         </div>
         
-        <!-- 解密部分 -->
-        <div id="decrypt-tab" class="tab-content">
-            <div class="card">
-                <div class="file-upload-area" id="decrypt-dropzone">
-                    <input type="file" id="encryptedFile" accept=".json">
-                    <label for="encryptedFile" class="upload-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        <span id="decrypt-filename">点击或拖拽加密文件到此处</span>
-                    </label>
-                </div>
-                
-                <button id="decryptBtn" class="secondary-btn">解密并播放</button>
-                
-                <video id="videoPlayer" class="video-preview" controls></video>
-                
-                <div id="decrypt-status" class="status-info">
-                    请上传加密后的.json文件
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h3>使用说明</h3>
-            <h4>加密视频：</h4>
-            <ol>
-                <li>上传视频文件</li>
-                <li>点击"加密并下载"</li>
-                <li>保存生成的.json加密文件</li>
-            </ol>
-            
-            <h4>解密视频：</h4>
-            <ol>
-                <li>上传加密的.json文件</li>
-                <li>点击"解密并播放"</li>
-                <li>视频将自动播放</li>
-            </ol>
-            
-            <p><strong>注意：</strong>所有操作在本地完成，不会上传到任何服务器。</p>
+        <div id="codeContainer">
+            <p style="color: var(--primary);">您的专属代码：</p>
+            <div id="codeText">&lt;a href="weixin://bizmsgmenu?msgmenucontent=爸爸 &amp;msgmenuid=960"&gt;这里放一个表情&lt;/a&gt;</div>
+            <button id="copyBtn">复制代码</button>
         </div>
     </div>
 
     <script>
-        // 切换标签页
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            const donateBtn = document.getElementById('donateBtn');
+            const modal = document.getElementById('donateModal');
+            const closeBtn = document.querySelector('.close');
+            const codeContainer = document.getElementById('codeContainer');
+            const copyBtn = document.getElementById('copyBtn');
+            const codeText = document.getElementById('codeText');
             
-            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
-            document.getElementById(`${tabId}-tab`).classList.add('active');
-        }
-        
-        // 加密功能
-        document.getElementById('videoUpload').addEventListener('change', function() {
-            const file = this.files[0];
-            if (!file) return;
-            
-            document.getElementById('encrypt-filename').textContent = file.name;
-            updateStatus('encrypt-status', `已选择文件: ${file.name} (${formatFileSize(file.size)})`, '');
-        });
-        
-        document.getElementById('encryptBtn').addEventListener('click', async function() {
-            const file = document.getElementById('videoUpload').files[0];
-            if (!file) {
-                updateStatus('encrypt-status', '请先选择视频文件', 'error');
-                return;
-            }
-            
-            updateStatus('encrypt-status', '加密中，请稍候...', '');
-            
-            try {
-                // 1. 生成随机密钥
-                const key = CryptoJS.lib.WordArray.random(128/8);
-                const iv = CryptoJS.lib.WordArray.random(128/8);
-                
-                // 2. 读取视频文件
-                const arrayBuffer = await file.arrayBuffer();
-                const wordArray = CryptoJS.lib.WordArray.create(new Uint8Array(arrayBuffer));
-                
-                // 3. 加密视频
-                const encrypted = CryptoJS.AES.encrypt(wordArray, key, { iv: iv });
-                
-                // 4. 组合加密数据
-                const payload = JSON.stringify({
-                    encryptedData: encrypted.toString(),
-                    key: key.toString(),
-                    iv: iv.toString(),
-                    originalName: file.name,
-                    fileType: file.type,
-                    timestamp: new Date().toISOString()
-                });
-                
-                // 5. 生成下载文件
-                const blob = new Blob([payload], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `encrypted_${file.name.replace(/\.[^/.]+$/, '')}.json`;
-                a.click();
-                
-                updateStatus('encrypt-status', '加密完成！文件已下载', 'success');
-            } catch (e) {
-                console.error('加密失败:', e);
-                updateStatus('encrypt-status', `加密失败: ${e.message}`, 'error');
-            }
-        });
-        
-        // 解密功能
-        document.getElementById('encryptedFile').addEventListener('change', function() {
-            const file = this.files[0];
-            if (!file) return;
-            
-            document.getElementById('decrypt-filename').textContent = file.name;
-            updateStatus('decrypt-status', `已选择文件: ${file.name}`, '');
-        });
-        
-        document.getElementById('decryptBtn').addEventListener('click', async function() {
-            const file = document.getElementById('encryptedFile').files[0];
-            if (!file) {
-                updateStatus('decrypt-status', '请先选择加密文件', 'error');
-                return;
-            }
-            
-            updateStatus('decrypt-status', '解密中，请稍候...', '');
-            
-            try {
-                // 1. 读取加密文件
-                const text = await file.text();
-                const { encryptedData, key, iv, originalName, fileType } = JSON.parse(text);
-                
-                // 2. 解密数据
-                const decrypted = CryptoJS.AES.decrypt(
-                    encryptedData,
-                    CryptoJS.enc.Hex.parse(key),
-                    { iv: CryptoJS.enc.Hex.parse(iv) }
-                );
-                
-                // 3. 转换为视频
-                const uint8Array = new Uint8Array(decrypted.sigBytes);
-                for (let i = 0; i < decrypted.sigBytes; i++) {
-                    uint8Array[i] = (decrypted.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                }
-                
-                // 4. 播放视频
-                const blob = new Blob([uint8Array], { type: fileType || 'video/mp4' });
-                const video = document.getElementById('videoPlayer');
-                video.src = URL.createObjectURL(blob);
-                video.style.display = 'block';
-                
-                updateStatus('decrypt-status', `解密成功！原始文件名: ${originalName || '未知'}`, 'success');
-            } catch (e) {
-                console.error('解密失败:', e);
-                updateStatus('decrypt-status', `解密失败: ${e.message}`, 'error');
-            }
-        });
-        
-        // 辅助函数
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-        
-        function updateStatus(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.className = 'status-info';
-            if (type === 'success') {
-                element.classList.add('success');
-            } else if (type === 'error') {
-                element.classList.add('error');
-            }
-        }
-        
-        // 拖拽功能
-        setupDragDrop('encrypt-dropzone', 'videoUpload', 'encrypt-filename', 'encrypt-status');
-        setupDragDrop('decrypt-dropzone', 'encryptedFile', 'decrypt-filename', 'decrypt-status');
-        
-        function setupDragDrop(dropZoneId, inputId, filenameId, statusId) {
-            const dropZone = document.getElementById(dropZoneId);
-            const input = document.getElementById(inputId);
-            const filename = document.getElementById(filenameId);
-            const status = document.getElementById(statusId);
-            
-            dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.style.borderColor = 'var(--primary)';
-                dropZone.style.backgroundColor = 'rgba(52, 152, 219, 0.05)';
+            // 显示赞赏二维码
+            donateBtn.addEventListener('click', function() {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
             });
             
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.style.borderColor = 'var(--medium)';
-                dropZone.style.backgroundColor = 'transparent';
-            });
+            // 关闭二维码窗口
+            function closeModal() {
+                modal.style.display = 'none';
+                codeContainer.style.display = 'block';
+                document.body.style.overflow = 'auto';
+            }
             
-            dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.style.borderColor = 'var(--medium)';
-                dropZone.style.backgroundColor = 'transparent';
-                
-                if (e.dataTransfer.files.length) {
-                    input.files = e.dataTransfer.files;
-                    const file = input.files[0];
-                    filename.textContent = file.name;
-                    updateStatus(statusId, `已选择文件: ${file.name} (${formatFileSize(file.size)})`, '');
+            closeBtn.addEventListener('click', closeModal);
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModal();
                 }
             });
-        }
+            
+            // 复制代码功能
+            copyBtn.addEventListener('click', function() {
+                const textarea = document.createElement('textarea');
+                textarea.value = codeText.textContent;
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    copyBtn.textContent = '已复制!';
+                    setTimeout(() => {
+                        copyBtn.textContent = '复制代码';
+                    }, 2000);
+                } catch (err) {
+                    alert('复制失败，请手动选择文本后复制');
+                }
+                
+                document.body.removeChild(textarea);
+            });
+        });
     </script>
 </body>
 </html>
